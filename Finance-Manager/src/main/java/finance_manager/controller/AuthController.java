@@ -22,7 +22,7 @@ public class AuthController {
     @PostMapping("/signup")
     public String signup(@Valid @RequestBody UserSignUpRequest request) {
         User user = userService.register(request);
-        return "user registered successfully with id " + user.getId();
+        return "user registered successfully with id: " + user.getId();
     }
 
     @PostMapping("/login")

@@ -17,5 +17,11 @@ spring:
   application:
     name: Finance-Manager
 server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+        http-only: true
+        same-site: strict
   port: 8080
 
