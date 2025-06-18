@@ -8,6 +8,7 @@ import finance_manager.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,18 +21,18 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/signup")
-    public String signup(@Valid @RequestBody UserSignUpRequest request) {
+    public ResponseEntity<String> signup(@Valid @RequestBody UserSignUpRequest request) {
         User user = userService.register(request);
-        return "user registered successfully with id: " + user.getId();
+        return ResponseEntity.ok("user registered successfully with id: " + user.getId());
     }
 
     @PostMapping("/login")
-    public String login(@Valid @RequestBody UserLoginRequest request, HttpSession Session) {
-        return authService.login(request, Session);
+    public ResponseEntity<String> login(@Valid @RequestBody UserLoginRequest request, HttpSession Session) {
+        return ResponseEntity.ok(authService.login(request, Session));
     }
 
     @PostMapping("/logout")
-    public String logout(HttpSession Session) {
-        return authService.logout(Session);
+    public ResponseEntity<String> logout(HttpSession Session) {
+        return ResponseEntity.ok(authService.logout(Session));
     }
 }
