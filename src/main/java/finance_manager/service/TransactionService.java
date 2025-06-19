@@ -29,8 +29,7 @@ public class TransactionService {
 
     public Transaction createTransaction(TransactionRequest request, HttpSession session) {
         Long userId = getUserId(session);
-        LocalDate date = LocalDate.parse(request.getDate(),
-            java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        LocalDate date = LocalDate.parse(request.getDate());
         if(date.isAfter(LocalDate.now())) throw new RuntimeException("Date cannot be in future");
 
         Category category = categoryRepository.findByNameAndUserIdOrIsCustom(request.getCategory(), userId)
