@@ -21,13 +21,23 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@Valid @RequestBody TransactionRequest request, HttpSession session) {
-        return ResponseEntity.ok(transactionService.createTransaction(request, session));
+    public ResponseEntity<?> createTransaction(@Valid @RequestBody TransactionRequest request, HttpSession session) {
+        if (session == null || session.getAttribute("userId") == null) {
+            return ResponseEntity.status(401).body("Unauthorized - Please login first");
+        }
+
+        Transaction transaction = transactionService.createTransaction(request, session);
+        return ResponseEntity.ok(transaction);
     }
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions(HttpSession session) {
-        return ResponseEntity.ok(transactionService.getUserTransactions(session));
+    public ResponseEntity<?> getAllTransactions(HttpSession session) {
+        if (session == null || session.getAttribute("userId") == null) {
+            return ResponseEntity.status(401).body("Unauthorized - Please login first");
+        }
+
+        List<Transaction> transactions = transactionService.getUserTransactions(session);
+        return ResponseEntity.ok(transactions);
     }
 
     @PutMapping("/{id}")

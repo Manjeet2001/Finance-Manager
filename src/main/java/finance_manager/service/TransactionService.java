@@ -89,7 +89,7 @@ public class TransactionService {
     }
 
     private Long getUserId(HttpSession session) {
-        Long userId = (Long) session.getAttribute("user");
+        Long userId = (Long) session.getAttribute("userId");
         if(userId == null) throw new UnauthorizedException("Access Denied ");
         return userId;
     }

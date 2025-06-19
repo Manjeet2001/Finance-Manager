@@ -23,12 +23,23 @@ public class AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new RuntimeException("Invalid credentials");
         }
-        session.setAttribute("user", user.getId());
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("username", user.getUsername());
+        session.setAttribute("user", user);
         return "Login Successful";
     }
 
     public String logout(HttpSession session) {
-        session.invalidate();
-        return "Logout Successful";
+        try {
+            session.removeAttribute("userId");
+            session.removeAttribute("username");
+            session.invalidate();
+
+            return "Logged out successfully";
+        } catch (Exception e) {
+            System.err.println("Logout error: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Logout failed: " + e.getMessage());
+        }
     }
 }
