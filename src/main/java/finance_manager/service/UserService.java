@@ -25,6 +25,9 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhoneNumber());
+        if(user.getRole() == null || user.getRole().trim().isEmpty()){
+            user.setRole("ROLE_USER");
+        }
 
         return userRepository.save(user);
     }

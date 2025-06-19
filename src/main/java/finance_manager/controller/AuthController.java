@@ -53,6 +53,6 @@ public class AuthController {
 
     @GetMapping("/check")
     public ResponseEntity<String> check(HttpSession Session) {
-        return ResponseEntity.ok("Up and Running");
+        return ResponseEntity.ok("Auth is Up and Running");
     }
 }

@@ -51,6 +51,11 @@ public class TransactionController {
         return ResponseEntity.ok("Transaction deleted with id: " + id);
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<String> check(HttpSession Session) {
+        return ResponseEntity.ok("Transaction is Up and Running");
+    }
+
     @GetMapping("/filter")
     public ResponseEntity<List<Transaction>> filter(
             @RequestParam(required = false) String startDate,
