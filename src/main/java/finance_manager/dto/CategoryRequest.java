@@ -15,4 +15,7 @@ public class CategoryRequest {
     @NonNull
     private TransactionType type;
 
+    public CategoryRequest() {
+
+    }
 }
