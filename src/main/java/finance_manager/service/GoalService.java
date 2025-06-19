@@ -85,7 +85,7 @@ public class GoalService {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
 
-        if(!goal.getUser().equals(userId)) throw new ForbiddenException("Access Denied");
+        if(!goal.getUser().getId().equals(userId)) throw new ForbiddenException("Access Denied");
 
         goal.setTargetAmount(request.getGoalAmount());
         goal.setTargetDate(LocalDate.parse(request.getTargetDate()));
@@ -98,7 +98,7 @@ public class GoalService {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
 
-        if(!goal.getUser().equals(userId)) throw new ForbiddenException("Access Denied");
+        if(!goal.getUser().getId().equals(userId)) throw new ForbiddenException("Access Denied");
         goalRepository.delete(goal);
     }
 
