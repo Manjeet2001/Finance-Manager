@@ -36,6 +36,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String role = "ROLE_USER";
 
+    public User(long id, String username, String encoded, String fullName, String phoneNumber) {
+        this.id = id;
+        this.username = username;
+        this.password = encoded;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == null || role.trim().isEmpty()) {
@@ -67,5 +75,14 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
+    }
+
+    public User(Long id, String username, String password, String fullName, String role, String phoneNumber) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.fullName = fullName;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
     }
 }

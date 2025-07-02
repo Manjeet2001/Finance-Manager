@@ -10,6 +10,7 @@ import finance_manager.exception.custom_exception.ResourceNotFoundException;
 import finance_manager.exception.custom_exception.UnauthorizedException;
 import finance_manager.repository.GoalRepository;
 import finance_manager.repository.TransactionRepository;
+import finance_manager.repository.TransactionRepositoryTest;
 import finance_manager.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;

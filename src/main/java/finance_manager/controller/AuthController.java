@@ -21,7 +21,7 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/signup")
+    @PostMapping("/register")
     public ResponseEntity<String> signup(@Valid @RequestBody UserSignUpRequest request) {
         User user = userService.register(request);
         return ResponseEntity.ok("user registered successfully with id: " + user.getId());
