@@ -1,15 +1,14 @@
 package finance_manager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import finance_manager.dto.UserLoginRequest;
 import finance_manager.dto.UserSignUpRequest;
 import finance_manager.entity.User;
 import finance_manager.service.AuthService;
 import finance_manager.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -54,5 +53,28 @@ class AuthControllerTest {
                         .content(new ObjectMapper().writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("user registered successfully with id: " + user.getId())));
+    }
+
+    @Test
+    void shouldLoginSuccessfully() throws Exception {
+        UserLoginRequest request = new UserLoginRequest("test@example.com", "password");
+
+        when(authService.login(any(), any())).thenReturn("mocked-token");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("mocked-token"));
+    }
+
+    @Test
+    void shouldLogoutSuccessfully() throws Exception {
+        when(authService.logout(any())).thenReturn("Logged out successfully");
+
+        mockMvc.perform(post("/api/auth/logout")
+                        .with(csrf()))
+                .andExpect(status().isOk());
     }
 }
