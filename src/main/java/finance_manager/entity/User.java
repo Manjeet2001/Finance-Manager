@@ -15,7 +15,9 @@ import java.util.List;
 @Setter
 @ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +36,9 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     @Column(nullable = false)
+    @Builder.Default
     private String role = "ROLE_USER";
+
 
     public User(long id, String username, String encoded, String fullName, String phoneNumber) {
         this.id = id;
@@ -77,12 +81,4 @@ public class User implements UserDetails {
         return UserDetails.super.isEnabled();
     }
 
-    public User(Long id, String username, String password, String fullName, String role, String phoneNumber) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.fullName = fullName;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
-    }
 }

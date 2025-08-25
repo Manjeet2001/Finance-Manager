@@ -1,45 +1,58 @@
 package finance_manager.service;
 
+import finance_manager.dto.LoginResponseDto;
+import finance_manager.dto.SignUpResponseDto;
 import finance_manager.dto.UserLoginRequest;
+import finance_manager.dto.UserSignUpRequest;
+import finance_manager.entity.User;
 import finance_manager.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import finance_manager.security.AuthUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import finance_manager.entity.User;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
-    @Autowired
-    private UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final AuthUtil authUtil;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public String login(UserLoginRequest request, HttpSession session) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid username"));
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new RuntimeException("Invalid credentials");
-        }
-        session.setAttribute("userId", user.getId());
-        session.setAttribute("username", user.getUsername());
-        session.setAttribute("user", user);
-        return "Login Successful";
+    public LoginResponseDto login(UserLoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+        User user = (User) authentication.getPrincipal();
+        String token = authUtil.generateToken(user);
+        return new LoginResponseDto(token, user.getId());
     }
 
-    public String logout(HttpSession session) {
-        try {
-            session.removeAttribute("userId");
-            session.removeAttribute("username");
-            session.invalidate();
-
-            return "Logged out successfully";
-        } catch (Exception e) {
-            System.err.println("Logout error: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Logout failed: " + e.getMessage());
+    public SignUpResponseDto signUp(UserSignUpRequest request) {
+        // Check if username is already taken
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username is already taken");
         }
+
+        String role = request.getRole();
+        if (role == null || role.isBlank()) {
+            role = "ROLE_USER"; // Default
+        } else if (!role.startsWith("ROLE_")) {
+            role = "ROLE_" + role.toUpperCase();
+        }
+        // Create and save new user
+        User newUser = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .fullName(request.getFullName())
+                .phoneNumber(request.getPhoneNumber())
+                .role(role)
+                .build();
+
+        User savedUser = userRepository.save(newUser);
+        return new SignUpResponseDto(savedUser.getId(), savedUser.getUsername());
     }
 }
