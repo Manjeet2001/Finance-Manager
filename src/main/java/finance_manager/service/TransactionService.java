@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -29,7 +30,7 @@ public class TransactionService {
 
     public Transaction createTransaction(TransactionRequest request, HttpSession session) {
         Long userId = getUserId(session);
-        LocalDate date = LocalDate.parse(request.getDate());
+        LocalDate date = LocalDate.parse(request.getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         if(date.isAfter(LocalDate.now())) throw new RuntimeException("Date cannot be in future");
 
         Category category = categoryRepository.findByNameAndUserIdOrIsCustom(request.getCategory(), userId)

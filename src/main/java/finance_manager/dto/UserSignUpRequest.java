@@ -23,4 +23,5 @@ public class UserSignUpRequest {
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number")
     private String phoneNumber;
 
+    private String role;
 }

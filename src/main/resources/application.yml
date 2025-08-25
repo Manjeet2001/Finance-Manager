@@ -7,6 +7,7 @@ spring:
   h2:
     console:
       enabled: true
+      path: /h2-console
   jpa:
     hibernate:
       ddl-auto: update
@@ -24,4 +25,5 @@ server:
         http-only: true
         same-site: strict
   port: 8080
-
+jwt:
+  secretKey: 46b222a7653e3f71f6979af8399875bf
