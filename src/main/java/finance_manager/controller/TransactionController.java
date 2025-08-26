@@ -3,9 +3,11 @@ package finance_manager.controller;
 import finance_manager.dto.TransactionRequest;
 import finance_manager.entity.Transaction;
 import finance_manager.entity.TransactionType;
+import finance_manager.security.SecurityUtils;
 import finance_manager.service.TransactionService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
@@ -16,38 +18,39 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
+@RequiredArgsConstructor
 public class TransactionController {
-    @Autowired
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
     @PostMapping
-    public ResponseEntity<?> createTransaction(@Valid @RequestBody TransactionRequest request, HttpSession session) {
-        if (session == null || session.getAttribute("userId") == null) {
+    public ResponseEntity<?> createTransaction(@Valid @RequestBody TransactionRequest request) {
+        String username = SecurityUtils.getCurrentUsername();
+        if (username == null) {
             return ResponseEntity.status(401).body("Unauthorized - Please login first");
         }
 
-        Transaction transaction = transactionService.createTransaction(request, session);
+        Transaction transaction = transactionService.createTransaction(request, username);
         return ResponseEntity.ok(transaction);
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllTransactions(HttpSession session) {
-        if (session == null || session.getAttribute("userId") == null) {
-            return ResponseEntity.status(401).body("Unauthorized - Please login first");
-        }
-
-        List<Transaction> transactions = transactionService.getUserTransactions(session);
+    public ResponseEntity<?> getAllTransactions() {
+        String username = SecurityUtils.getCurrentUsername();
+        List<Transaction> transactions = transactionService.getUserTransactions(username);
         return ResponseEntity.ok(transactions);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @Valid @RequestBody TransactionRequest request, HttpSession session) {
-        return ResponseEntity.ok(transactionService.updateTransaction(id, request, session));
+        String username = SecurityUtils.getCurrentUsername();
+        Transaction updatedTransaction = transactionService.updateTransaction(id, request, username);
+        return ResponseEntity.ok(updatedTransaction);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTransaction(@PathVariable Long id, HttpSession session) {
-        transactionService.deleteTransaction(id, session);
+    public ResponseEntity<String> deleteTransaction(@PathVariable Long id) {
+        String username = SecurityUtils.getCurrentUsername();
+        transactionService.deleteTransaction(id, username);
         return ResponseEntity.ok("Transaction deleted with id: " + id);
     }
 
@@ -61,8 +64,10 @@ public class TransactionController {
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             @RequestParam(required = false) String category,
-            @RequestParam(required = false)TransactionType type, HttpSession session)
+            @RequestParam(required = false)TransactionType type)
     {
-        return ResponseEntity.ok(transactionService.filterTransactions(startDate, endDate, category, type, session));
+        String username = SecurityUtils.getCurrentUsername();
+        List<Transaction> filtered = transactionService.filterTransactions(startDate, endDate, category, type, username);
+        return ResponseEntity.ok(filtered);
     }
 }
