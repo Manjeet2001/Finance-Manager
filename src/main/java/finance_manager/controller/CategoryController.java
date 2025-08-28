@@ -41,5 +41,4 @@ public class CategoryController {
         categoryService.deleteCustomCategory(name, username);
         return ResponseEntity.ok("Category Deleted with name " + name);
     }
-
 }

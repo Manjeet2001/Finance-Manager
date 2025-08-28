@@ -4,6 +4,7 @@ import finance_manager.dto.GoalRequest;
 import finance_manager.entity.Goal;
 import finance_manager.entity.Transaction;
 import finance_manager.entity.TransactionType;
+import finance_manager.entity.User;
 import finance_manager.exception.custom_exception.ForbiddenException;
 import finance_manager.exception.custom_exception.ResourceNotFoundException;
 import finance_manager.exception.custom_exception.UnauthorizedException;
@@ -11,6 +12,7 @@ import finance_manager.repository.GoalRepository;
 import finance_manager.repository.TransactionRepository;
 import finance_manager.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +23,16 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class GoalService {
-    @Autowired
-    private GoalRepository goalRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TransactionRepository transactionRepository;
 
-    public Goal createGoal(GoalRequest request, HttpSession session) {
-        Long userId = getUserId(session);
+    private final GoalRepository goalRepository;
+    private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
+
+    public Goal createGoal(GoalRequest request, String username) {
+        User user = getUserByUserName(username);
+        Long userId = user.getId();
         LocalDate date = LocalDate.parse(request.getTargetDate(),
                 java.time.format.DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         if(date.isBefore(LocalDate.now()) ) throw new RuntimeException("Target date must be in future");
@@ -44,8 +46,9 @@ public class GoalService {
         return goalRepository.save(goal);
     }
 
-    public List<Map<String, Object>> getGoalsWithProgress(HttpSession session){
-        Long userId = getUserId(session);
+    public List<Map<String, Object>> getGoalsWithProgress(String username){
+        User user = getUserByUserName(username);
+        Long userId = user.getId();
         List<Goal> goals = goalRepository.findByUserId(userId);
         List<Transaction> transactions = transactionRepository.findByUserIdOrderByDateDesc(userId);
         List<Map<String, Object>> result = new ArrayList<>();
@@ -80,8 +83,9 @@ public class GoalService {
         return result;
     }
 
-    public Goal updateGoal(Long id, GoalRequest request, HttpSession session) {
-        Long userId = getUserId(session);
+    public Goal updateGoal(Long id, GoalRequest request, String username) {
+        User user = getUserByUserName(username);
+        Long userId = user.getId();
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
 
@@ -93,8 +97,9 @@ public class GoalService {
         return goalRepository.save(goal);
     }
 
-    public void deleteGoal(Long id, HttpSession session) {
-        Long userId = getUserId(session);
+    public void deleteGoal(Long id, String username) {
+        User user = getUserByUserName(username);
+        Long userId = user.getId();
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal not found"));
 
@@ -102,9 +107,8 @@ public class GoalService {
         goalRepository.delete(goal);
     }
 
-    private Long getUserId(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if(userId == null) throw new UnauthorizedException("Access Denied ");
-        return userId;
+    private User getUserByUserName(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(()->new ResourceNotFoundException("User not found for username: " + username));
     }
 }
