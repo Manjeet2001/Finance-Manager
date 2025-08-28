@@ -1,20 +1,17 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:finance_db
-    driverClassName: org.h2.Driver
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:postgresql://postgres:5432/finance_db
+    username: finance_user
+    password: finance_pass
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   application:
     name: Finance-Manager
 server:
