@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15
-    container_name: postgres-db
+    container_name: postgres
     environment:
       POSTGRES_DB: finance_db
       POSTGRES_USER: finance_user
@@ -12,12 +10,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - finance-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finance_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
     container_name: finance-manager-app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -26,6 +32,11 @@ services:
       SPRING_DATASOURCE_PASSWORD: finance_pass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     restart: always
+    networks:
+      - finance-net
 
 volumes:
   postgres_data:
+
+networks:
+  finance-net:
