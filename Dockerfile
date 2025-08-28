@@ -6,11 +6,8 @@ WORKDIR /app
 # Copy project files
 COPY pom.xml .
 COPY src ./src
-COPY test.sh .
 
-# Make test.sh executable and run it, then build the project
-RUN chmod +x test.sh
-RUN ./test.sh && mvn clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # ----------- STAGE 2: Run ------------
 FROM eclipse-temurin:21-jdk-jammy
